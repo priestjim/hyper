@@ -65,6 +65,8 @@ insert_many(L, Hyper) ->
 
 
 -spec union([filter()]) -> filter().
+union([]) ->
+  0.0;
 union(Filters) when is_list(Filters) ->
     case lists:usort(lists:map(fun (#hyper{p = P, registers = {Mod, _}}) ->
                                        {P, Mod}
