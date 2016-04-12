@@ -268,9 +268,9 @@ estimate_report() ->
 
     {ok, F} = file:open("estimates.csv", [write]),
 
-    io:format(F, "p,card,median,p05,p95~n", []),
+    ok = io:format(F, "p,card,median,p05,p95~n", []),
 
-    [begin
+    [['ok']] = [begin
          Stats = [run_report(P, Card, Repetitions) || Card <- Cardinalities],
          lists:map(fun ({Card, Median, P05, P95}) ->
                            io:format(F,
@@ -278,7 +278,7 @@ estimate_report() ->
                                      [P, Card, Median, P05, P95])
                    end, Stats)
      end || P <- Ps],
-    io:format("~n"),
+    ok = io:format("~n"),
     file:close(F).
 
 
@@ -287,7 +287,7 @@ run_report(P, Card, Repetitions) ->
                           fun (I) ->
                                   io:format("~p values with p=~p, rep ~p~n",
                                             [Card, P, I]),
-                                  random:seed(os:timestamp()),
+                                  _Seed = random:seed(os:timestamp()),
                                   Elements = generate_unique(Card),
                                   Estimate = card(insert_many(Elements, new(P))),
                                   abs(Card - Estimate) / Card
@@ -330,7 +330,7 @@ perf_report() ->
 
     R = [begin
              io:format("."),
-             random:seed(1, 2, 3),
+             _Seed = random:seed(1, 2, 3),
 
              M = trunc(math:pow(2, P)),
              InsertUs = Time(fun (Values, H) ->
