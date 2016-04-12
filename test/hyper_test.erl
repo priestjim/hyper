@@ -2,7 +2,11 @@
 -include_lib("proper/include/proper.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--record(hyper, {p, registers}). % copy of #hyper in hyper.erl
+-type precision() :: 4..16.
+-type registers() :: any().
+
+-record(hyper, {p :: precision(),
+                registers :: {module(), registers()}}).
 
 hyper_test_() ->
     ProperOpts = [{max_size, 1000},
@@ -344,7 +348,7 @@ bad_serialization_t() ->
     [begin
          P = 15,
          M = trunc(math:pow(2, P)),
-         {ok, WithNewlines} = file:read_file("../test/filter.txt"),
+         {ok, WithNewlines} = file:read_file("test/filter.txt"),
          Raw = case zlib:gunzip(
                       base64:decode(
                         binary:replace(WithNewlines, <<"\n">>, <<>>))) of
@@ -399,7 +403,7 @@ gen_filters(Values) ->
     ?LET(NumFilters, choose(2, 10),
          gen_filters(Values, length(Values) div NumFilters, NumFilters)).
 
-gen_filters(Values, Size, 0) ->
+gen_filters(Values, _Size, 0) ->
     [Values];
 gen_filters(Values, Size, NumFilters) ->
     case split(Size, Values) of
@@ -410,7 +414,7 @@ gen_filters(Values, Size, NumFilters) ->
     end.
 
 
-split(N, []) -> {[], []};
+split(_N, []) -> {[], []};
 split(N, L) when length(L) < N -> {L, []};
 split(N, L) -> lists:split(N, L).
 

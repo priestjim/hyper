@@ -60,7 +60,7 @@ max_merge(_Handles) ->
     erlang:nif_error(nif_not_loaded).
 
 reduce_precision(_NewP, _Handle) ->
-    throw(not_implemented).
+    {error, not_implemented}.
 
 % Returns badarg on:
 %   - Handle is not a hyper_carray

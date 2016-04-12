@@ -102,7 +102,7 @@ max_merge({sparse, Sparse, P, _}, {dense, Dense}) ->
               do_dense_merge(Dense, bisect2dense(Sparse, P)))}.
 
 reduce_precision(_NewP, _B) ->
-    throw(not_implemented).
+    {error, not_implemented}.
 
 compact(B) ->
     B.

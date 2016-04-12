@@ -25,8 +25,15 @@
 -define(VALUE_SIZE, 6).
 -define(MERGE_THRESHOLD, 0.05).
 
--record(buffer, {buf, buf_size, p, convert_threshold}).
--record(dense, {b, buf, buf_size, merge_threshold}).
+-record(buffer, {buf :: term(),
+        buf_size :: non_neg_integer(),
+        p :: term(),
+        convert_threshold :: integer()}).
+
+-record(dense, {b :: term(),
+        buf :: term(),
+        buf_size :: non_neg_integer(),
+        merge_threshold :: float()}).
 
 
 new(P) ->

@@ -43,7 +43,7 @@ max_merge(Left, Right) ->
          end, Right, Left).
 
 reduce_precision(_NewP, _A) ->
-    throw(not_implemented).
+    {error, not_implemented}.
 
 bytes(A) ->
     erts_debug:flat_size(A) * 8.

@@ -52,7 +52,7 @@ max_merge(Small, Big) ->
           end, Big, Small).
 
 reduce_precision(_NewP, _Register) ->
-    throw(not_implemented).
+    {error, not_implemented}.
 
 fold(F, A, {{_, T}, _M}) when is_function(F, 3) ->
     fold_1(F, A, T).

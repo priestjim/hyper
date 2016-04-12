@@ -63,7 +63,7 @@ max_merge(Small, Big) ->
 
 
 reduce_precision(_NewP, _B) ->
-    throw(not_implemented).
+    {error, not_implemented}.
 
 %%
 %% INTERNALS
