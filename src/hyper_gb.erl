@@ -1,6 +1,7 @@
 -module(hyper_gb).
 -include_lib("eunit/include/eunit.hrl").
-
+%% Dialyzer warnings
+-dialyzer([no_opaque]).
 -behaviour(hyper_register).
 -export([new/1,
          set/3,
@@ -66,7 +67,6 @@ fold_1(_, Acc, _) ->
 
 bytes({T, _}) ->
     erts_debug:flat_size(T) * 8.
-
 
 register_sum({T, M}) ->
     {MaxI, Sum} = fold(fun (Index, Value, {I, Acc}) ->

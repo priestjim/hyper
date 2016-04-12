@@ -271,27 +271,23 @@ estimate_report() ->
 
     ok = io:format(F, "p,card,median,p05,p95~n", []),
 
-    [['ok']] = [begin
-         Stats = [run_report(P, Card, Repetitions) || Card <- Cardinalities],
-         lists:map(fun ({Card, Median, P05, P95}) ->
-                           io:format(F,
-                                     "~p,~p,~p,~p,~p~n",
-                                     [P, Card, Median, P05, P95])
-                   end, Stats)
-     end || P <- Ps],
+    _ = [begin
+             Stats = [run_report(P, Card, Repetitions) || Card <- Cardinalities],
+             _ = lists:map(fun({Card, Median, P05, P95}) ->
+                    ok = io:format(F, "~p,~p,~p,~p,~p~n", [P, Card, Median, P05, P95])
+                 end, Stats)
+        end || P <- Ps],
     ok = io:format("~n"),
     file:close(F).
 
-
 run_report(P, Card, Repetitions) ->
-    {ok, Estimations} = rpc:pmap({?MODULE, run_report_worker}, [P, Card], lists:seq(1, Repetitions)),
+    Estimations = rpc:pmap({?MODULE, run_report_worker}, [P, Card], lists:seq(1, Repetitions)),
     Hist = basho_stats_histogram:update_all(
              Estimations,
              basho_stats_histogram:new(
                0,
                lists:max(Estimations),
                length(Estimations))),
-
     P05 = basho_stats_histogram:quantile(0.05, Hist),
     P95 = basho_stats_histogram:quantile(0.95, Hist),
     {Card, median(Estimations), P05, P95}.
