@@ -245,7 +245,7 @@ random_bytes(N) ->
 
 random_bytes(Acc, 0) -> Acc;
 random_bytes(Acc, N) ->
-    Int = random:uniform(100000000000000),
+    Int = rand:uniform(100000000000000),
     random_bytes([<<Int:64/integer>> | Acc], N-1).
 
 
@@ -294,7 +294,7 @@ run_report(P, Card, Repetitions) ->
 
 run_report_worker(I, P, Card) ->
     io:format("~p values with p=~p, rep ~p~n", [Card, P, I]),
-    _Seed = random:seed(os:timestamp()),
+    _State = rand:seed(exs1024),
     Elements = generate_unique(Card),
     Estimate = card(insert_many(Elements, new(P))),
     abs(Card - Estimate) / Card.
@@ -322,7 +322,7 @@ perf_report() ->
 
     R = [begin
              io:format("."),
-             _Seed = random:seed(1, 2, 3),
+             _State = rand:seed(exs1024),
 
              M = trunc(math:pow(2, P)),
              InsertUs = Time(fun (Values, H) ->
