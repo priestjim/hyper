@@ -25,7 +25,6 @@
 %% Exported for testing
 -export([run_of_zeroes/1, perf_report/0, estimate_report/0]).
 %% Exported for rmap
--export([run_report_worker/3]).
 -define(DEFAULT_BACKEND, hyper_binary).
 
 %%
@@ -281,7 +280,19 @@ estimate_report() ->
     file:close(F).
 
 run_report(P, Card, Repetitions) ->
-    Estimations = rpc:pmap({?MODULE, run_report_worker}, [P, Card], lists:seq(1, Repetitions)),
+    {ok, Estimations} = s2_par:map(
+                          fun (I) ->
+                                  io:format("~p values with p=~p, rep ~p~n",
+                                            [Card, P, I]),
+                                  rand:seed(exs1024, {erlang:phash2([node()]),
+                                              erlang:monotonic_time(),
+                                              erlang:unique_integer()}),
+                                  Elements = generate_unique(Card),
+                                  Estimate = card(insert_many(Elements, new(P))),
+                                  abs(Card - Estimate) / Card
+                          end,
+                          lists:seq(1, Repetitions),
+                          [{workers, 8}]),
     Hist = basho_stats_histogram:update_all(
              Estimations,
              basho_stats_histogram:new(
@@ -291,13 +302,6 @@ run_report(P, Card, Repetitions) ->
     P05 = basho_stats_histogram:quantile(0.05, Hist),
     P95 = basho_stats_histogram:quantile(0.95, Hist),
     {Card, median(Estimations), P05, P95}.
-
-run_report_worker(I, P, Card) ->
-    io:format("~p values with p=~p, rep ~p~n", [Card, P, I]),
-    _State = rand:seed(exs1024),
-    Elements = generate_unique(Card),
-    Estimate = card(insert_many(Elements, new(P))),
-    abs(Card - Estimate) / Card.
 
 perf_report() ->
     Ps      = [15],
