@@ -67,6 +67,7 @@ COVERDATA = $(CURDIR)/_build/test/ct.coverdata
 
 all: $(REBAR)
 	@REBAR_PROFILE=dev $(REBAR) do compile
+	@REBAR_PROFILE=test $(REBAR) do compile
 
 test: $(REBAR) epmd
 	@REBAR_PROFILE=test $(REBAR) do eunit -c, cover
@@ -84,10 +85,15 @@ dist: $(REBAR) test
 	@REBAR_PROFILE=dev $(REBAR) do dialyzer, xref
 
 perf_report: $(REBAR) all
-	@$(ERL) -pa _build/dev/*/ebin -noshell -run hyper perf_report -s init stop
+	@$(ERL) -pa _build/dev/lib/bisect/ebin \
+				_build/dev/lib/hyper/ebin \
+			-noshell -run hyper perf_report -s init stop
 
 estimate_report: $(REBAR) all
-	@$(ERL) -pa _build/dev/*/ebin -noshell -run hyper estimate_report -s init stop
+	@$(ERL) -pa _build/test/lib/hyper/ebin \
+				 _build/test/lib/stdlib2/ebin \
+				 _build/test/lib/basho_stats/ebin \
+			-noshell -run hyper estimate_report -s init stop
 	bin/plot.R
 
 # =============================================================================
